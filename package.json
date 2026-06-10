@@ -1,0 +1,14 @@
+{
+  "name": "outreachai",
+  "version": "1.0.0",
+  "description": "OutreachAI - AI-powered cold email sequences",
+  "scripts": {
+    "install": "cd client && npm install && cd ../server && npm install",
+    "build": "cd client && npm run build",
+    "start": "cd server && node index.js",
+    "postinstall": "npm run build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

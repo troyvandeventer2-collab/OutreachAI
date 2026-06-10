@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const cors = require('cors');
 require('dotenv').config();
 
@@ -12,7 +13,11 @@ const userRoutes = require('./routes/user');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Enable CORS for all origins in development
+// Serve built frontend from client/dist
+const clientDist = path.join(__dirname, '..', 'client', 'dist');
+app.use(express.static(clientDist));
+
+// Enable CORS for all origins
 app.use(cors({
   origin: '*',
   credentials: true
@@ -39,9 +44,12 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK', message: 'OutreachAI Backend Server is running.' });
 });
 
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({ error: 'Endpoint not found' });
+// Serve React app for all other routes (client-side routing) - Express 5 compatible
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api/') || req.path === '/health') {
+    return next();
+  }
+  res.sendFile(path.join(clientDist, 'index.html'));
 });
 
 // Global error handler
@@ -50,7 +58,7 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal server error', details: err.message });
 });
 
-// Bind to 0.0.0.0 to ensure public availability inside sandbox environment
+// Bind to 0.0.0.0 to ensure public availability
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`OutreachAI Backend Server is running and listening on http://0.0.0.0:${PORT}`);
 });
